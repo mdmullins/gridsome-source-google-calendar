@@ -1,0 +1,33 @@
+{
+  "name": "gridsome-source-google-sheets",
+  "author": {
+    "name": "MD Mullins"
+  },
+  "version": "0.4.0",
+  "description": "Gridsome source plugin for google calendar",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mdmullins/gridsome-source-google-calendar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mdmullins/gridsome-source-google-calendar/issues"
+  },
+  "homepage": "https://github.com/mdmullins/gridsome-source-google-calendar.git",
+  "license": "MIT",
+  "keywords": [
+    "gridsome",
+    "gridsome-plugin",
+    "gridsome-source",
+    "google-calendar"
+  ],
+  "dependencies": {
+    "googleapis": "^40.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.17.1"
+  }
+}
