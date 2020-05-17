@@ -3,7 +3,8 @@ const { google } = require('googleapis')
 class GoogleCalendarSource {
   static defaultOptions() {
     const currentDate = new Date()
-    const oneYearFromNowDate = currentDate.setFullYear(currentDate.getFullYear() + 1)
+    const year = currentDate.getFullYear()
+    const oneYearFromNowDate = new Date(year + 1)
     return {
       apiKey: "",
       calendarId: "",
