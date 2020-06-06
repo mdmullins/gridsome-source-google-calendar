@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 
 class GoogleCalendarSource {
   static defaultOptions() {
-    const currentDate = dayjs.format()
+    const currentDate = dayjs().format()
     const yearFromNow = currentDate.add(1, 'year')
     return {
       calendarId: '',
