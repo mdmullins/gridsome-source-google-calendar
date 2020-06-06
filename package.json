@@ -25,6 +25,8 @@
     "google-calendar"
   ],
   "dependencies": {
+    "axios": "^0.19.2",
+    "dayjs": "^1.8.28",
     "googleapis": "^40.0.0"
   },
   "devDependencies": {

@@ -1,48 +1,48 @@
-const { google } = require('googleapis')
+const axios = require('axios')
+const dayjs = require('dayjs')
 
 class GoogleCalendarSource {
   static defaultOptions() {
-    const currentDate = new Date()
-    const year = currentDate.getFullYear()
-    const oneYearFromNowDate = new Date(year + 1)
+    const currentDate = dayjs.format()
+    const yearFromNow = currentDate.add(1, 'year')
     return {
-      apiKey: "",
-      calendarId: "",
+      calendarId: '',
       maxResults: 25,
-      timeMax: oneYearFromNowDate.toISOString(),
-      timeMin: currentDate.toISOString(),
-      timeZone: "Europe/London",
-      type: "googleCalendar",
-    };   
+      timeZone: 'Europe/London',
+      type: 'googleCalendar',
+      calendarId: '',
+      timeMin: currentDate,
+      timeMax: yearFromNow,
+      apiKey: ''
+    }   
   }
 
   constructor(api, options = GoogleCalendarSource.defaultOptions()) {
     this.options = options
 
     api.loadSource(async store => {
-      const contentType = store.addCollection({
-        typeName: this.options.type
-      })
+      try {
+        const contentType = store.addCollection({
+          typeName: this.options.type
+        })
+        const maxTime = `&timeMax=${this.options.timeMax}`
+        const minTime = `&timeMin=${this.options.timeMin}`
+        const baseURL = `https://www.googleapis.com/calendar/v3/calendars/`
+        const getURL = `${baseURL}${this.options.calendarId}/events?maxResults=${this.options.maxResults}${maxTime}&key=${this.options.apiKey}`
 
-      const calendar = google.calendar({
-        version: 'v3',
-        auth: this.options.apiKey
-      })
+        const res = await axios.get(getURL)
 
-      await calendar.events.get({
-        auth: this.options.apiKey,
-        calendarId: this.options.calendarId,
-        maxResults: this.options.maxResults,
-        orderBy: this.options.orderBy,
-        timeMax: this.options.timeMax,
-        timeMin: this.options.timeMin,
-        timeZone: this.options.timeZone
-      }).then(response => {
-        const data = response.items
-        contentType.addNode(data)
-      }).catch(error => console.log('error fetching calendar', error))
+        if (res) {
+          contentType.addNode(res.items)
+        } else {
+          throw new Error('no events found')
+        }
+      } catch (error) {
+        console.error('error fetching events', error)
+      }
     })
   }
 }
 
 module.exports = GoogleCalendarSource
+
