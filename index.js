@@ -41,7 +41,6 @@ class GoogleCalendarSource {
         const singleEvents = `&singleEvents=${this.options.singleEvents}`
         const baseURL = `https://www.googleapis.com/calendar/v3/calendars/`
         const getURL = `${baseURL}${this.options.calendarId}/events?maxResults=${this.options.maxResults}${minTime}${maxTime}${singleEvents}${orderBy}&key=${this.options.apiKey}`
-        console.log(getURL)
         const res = await axios.get(getURL)
         if (res) {
           const items = await res.data.items
