@@ -4,7 +4,9 @@ const dayjs = require('dayjs')
 class GoogleCalendarSource {
   static defaultOptions() {
     const currentDate = dayjs().format()
-    const yearFromNow = currentDate.add(1, 'year')
+    const yearFromNow = dayjs()
+      .add(1, 'year')
+      .format()
     return {
       calendarId: '',
       maxResults: 25,
@@ -13,8 +15,9 @@ class GoogleCalendarSource {
       calendarId: '',
       timeMin: currentDate,
       timeMax: yearFromNow,
-      apiKey: ''
-    }   
+      apiKey: '',
+      singleEvents: true,
+    }
   }
 
   constructor(api, options = GoogleCalendarSource.defaultOptions()) {
@@ -23,17 +26,23 @@ class GoogleCalendarSource {
     api.loadSource(async store => {
       try {
         const contentType = store.addCollection({
-          typeName: this.options.type
+          typeName: this.options.type,
         })
-        const maxTime = `&timeMax=${this.options.timeMax}`
-        const minTime = `&timeMin=${this.options.timeMin}`
+        const maxTime = this.options.timeMax
+          ? `&maxTime=${this.options.timeMax}`
+          : ''
+        const minTime = this.options.timeMin
+          ? `&minTime=${this.options.timeMin}`
+          : ''
+        const singleEvents = `&singleEvents=${this.options.singleEvents}`
         const baseURL = `https://www.googleapis.com/calendar/v3/calendars/`
-        const getURL = `${baseURL}${this.options.calendarId}/events?maxResults=${this.options.maxResults}${maxTime}&key=${this.options.apiKey}`
-
+        const getURL = `${baseURL}${this.options.calendarId}/events?maxResults=${this.options.maxResults}${maxTime}${minTime}${singleEvents}&key=${this.options.apiKey}`
         const res = await axios.get(getURL)
-
         if (res) {
-          contentType.addNode(res.items)
+          const items = await res.data.items
+          items.forEach(event => {
+            contentType.addNode(event)
+          })
         } else {
           throw new Error('no events found')
         }
@@ -45,4 +54,3 @@ class GoogleCalendarSource {
 }
 
 module.exports = GoogleCalendarSource
-
