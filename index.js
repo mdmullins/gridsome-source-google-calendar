@@ -3,10 +3,10 @@ const dayjs = require('dayjs')
 
 class GoogleCalendarSource {
   static defaultOptions() {
-    const currentDate = dayjs().format()
+    const currentDate = dayjs().toISOString()
     const yearFromNow = dayjs()
       .add(1, 'year')
-      .format()
+      .toISOString()
     return {
       calendarId: '',
       maxResults: 25,
@@ -17,6 +17,7 @@ class GoogleCalendarSource {
       timeMax: yearFromNow,
       apiKey: '',
       singleEvents: true,
+      orderBy: 'startTime',
     }
   }
 
@@ -29,18 +30,27 @@ class GoogleCalendarSource {
           typeName: this.options.type,
         })
         const maxTime = this.options.timeMax
-          ? `&maxTime=${this.options.timeMax}`
+          ? `&timeMax=${this.options.timeMax}`
           : ''
         const minTime = this.options.timeMin
-          ? `&minTime=${this.options.timeMin}`
+          ? `&timeMin=${this.options.timeMin}`
+          : ''
+        const orderBy = this.options.orderBy
+          ? `&orderBy=${this.options.orderBy}`
           : ''
         const singleEvents = `&singleEvents=${this.options.singleEvents}`
         const baseURL = `https://www.googleapis.com/calendar/v3/calendars/`
-        const getURL = `${baseURL}${this.options.calendarId}/events?maxResults=${this.options.maxResults}${maxTime}${minTime}${singleEvents}&key=${this.options.apiKey}`
+        const getURL = `${baseURL}${this.options.calendarId}/events?maxResults=${this.options.maxResults}${minTime}${maxTime}${singleEvents}${orderBy}&key=${this.options.apiKey}`
+        console.log(getURL)
         const res = await axios.get(getURL)
         if (res) {
           const items = await res.data.items
-          items.forEach(event => {
+          const sortedItems = items.sort(function(a, b) {
+            a = new Date(a.start.dateTime)
+            b = new Date(b.start.dateTime)
+            return a > b ? -1 : a < b ? 1 : 0
+          })
+          sortedItems.forEach(event => {
             contentType.addNode(event)
           })
         } else {
